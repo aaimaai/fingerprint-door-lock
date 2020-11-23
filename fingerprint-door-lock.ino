@@ -284,14 +284,14 @@ void handle_click() {
     case STATE_ADD_EXTRA_FINGER:
       switch (menu_pos) {
         case 0:
+          enroll_finger();
+          break;
+        case 1:
           current_state = STATE_MAIN_MENU;
           user_count = -1;
           new_user_letter = 0;
           strcpy(new_user_name, SPACES);
           ascii_pos = 0;
-          break;
-        case 1:
-          enroll_finger();
           break;
       }
       break;
@@ -356,7 +356,7 @@ void handle_long_click() {
 
 void rotate() {
   unsigned long current_action = millis();
-  if (current_action - last_action < 5) {
+  if (current_action - last_action < 100) {
     return;
   }
   last_action = current_action;
@@ -502,7 +502,7 @@ void display_add_finger() {
   lcdPrint(F("ANOTHER FINGER?"));
   lcdSetCursor(0, 1);
   char menu_item[33] = "> ";
-  if (menu_pos) {
+  if (!menu_pos) {
     strcat(menu_item, "Yes");
   } else {
     strcat(menu_item, "No");
@@ -812,7 +812,13 @@ int8_t scan_finger(uint8_t &finger_id) {
     // Serial.println("Communication error");
     return p;
   } else if (p == FINGERPRINT_ENROLLMISMATCH) {
-    // Serial.println("Fingerprints did not match");
+    lcdSetCursor(0, 0);
+    lcdPrint(F("Fingerprints did"));
+    lcdSetCursor(0, 1);
+    lcdPrint(F("not match...    "));
+    digitalWrite(BEEPER, HIGH);
+    delay(2000);
+    digitalWrite(BEEPER, LOW);
     return p;
   } else {
     // Serial.println("Unknown error");
